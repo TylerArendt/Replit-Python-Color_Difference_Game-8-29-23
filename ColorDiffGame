@@ -1,0 +1,160 @@
+import turtle
+import random
+from functools import partial
+
+# To do next week
+# refine hex algorithm
+# points system
+
+screen = turtle.Screen()
+screen.setup(400, 400)
+screen.colormode(255)
+turtle.bgcolor('grey')
+
+turtle.tracer(0, 0)
+
+# the difference between the main color and the pick color
+cdif = 50
+# the side of the board in squares
+bSide = 2
+# array of board objects
+squares = [turtle.Turtle()]
+count = 1
+#keeps track of score
+score = 0
+#scribe of the score
+ethan = turtle.Turtle()
+ethan.penup()
+ethan.goto(0,155)
+ethan.pendown()
+ethan.hideturtle()
+# hint button
+evan = turtle.Turtle()
+turtle.register_shape("rectangle", ((-1, 0), (-1, 1), (1, 1), (1, 0)))
+evan.shapesize(22, 20)
+evan.seth(270)
+evan.shape('rectangle')
+evan.penup()
+evan.goto(155, 160)
+evan.color('red')
+evan.pendown()
+
+def board():
+  # Updates everything in the window?
+  global bSide, squares, count
+
+  # Update the score tracker
+  ethan.clear()
+  ethan.write(f"score: {score}", move = False, align = "center", font = ("Arial", 18, "normal"))
+
+  # Update the hint button
+  evan.color('black')
+  evan.write(" Hint?", move = False, align = "center", font = ("Courier", 12, "normal"))
+  c = change(squares[0])
+  evan.color('red')
+  for square in squares:
+    square.hideturtle()
+  squares.clear()
+  # turtleWidth = 20 px
+  # x = (i * turtleWidth) - (bSide * .5 * turtleWidth)
+  turtleWidth = 20
+  oddblock = random.randint(0, bSide * bSide - 1)
+  for i in range(bSide):
+    for j in range(bSide):
+      simon = turtle.Turtle()
+      simon.shape('square')
+      simon.penup()
+      x = (i * (turtleWidth + 4)) - ((bSide - 1) * .5 * (turtleWidth + 4))
+      y = (j * (turtleWidth + 4)) - ((bSide - 1) * .5 * (turtleWidth + 4))
+      simon.goto(x, y)
+      if (i * bSide + j) == oddblock:
+        simon.color(c[1])
+        simon.diff = True
+        print(c, i * bSide + j)
+      else:
+        simon.color(c[0])
+        simon.diff = False
+      simon.onclick(partial(onclick, simon))
+      squares.append(simon)
+  count = count + 1
+  if bSide < 8 and count % 5 == 0:
+    bSide = bSide + 1
+  turtle.update()
+
+
+def change(t):
+  redint = random.randint(0, 255)
+  redhex = hex(redint)
+  grnint = random.randint(0, 255)
+  grnhex = hex(grnint)
+  bluint = random.randint(0, 255)
+  bluhex = hex(bluint)
+
+  colorstring = str(redhex).replace("0x", "#") + str(grnhex).replace(
+      "0x", "") + str(bluhex).replace("0x", "")
+
+  global cdif
+  crand = random.randint(1, 4)
+  offset = int(cdif * (random.randint(0, 1) * 2 - 1))
+  if crand == 1:
+    redhex = offColor(redint, offset)
+  if crand == 2:
+    grnhex = offColor(grnint, offset)
+  if crand == 3:
+    bluhex = offColor(bluint, offset)
+  if crand == 4:
+    redhex = offColor(redint, offset)
+    grnhex = offColor(grnint, offset)
+    bluhex = offColor(bluint, offset)
+
+  cdif = cdif - 1
+
+  offstring = str(redhex).replace("0x", "#") + str(grnhex).replace(
+      "0x", "") + str(bluhex).replace("0x", "")
+
+  try:
+    t.color('black', colorstring)
+    t.color('black', offstring)
+    return (colorstring, offstring)
+  except:
+    return change(t)
+
+
+def offColor(color, offset):
+  color = color + offset
+  if color > 255:
+    color = 255
+  if color < 0:
+    color = 0
+  return hex(color)
+
+
+def onclick(zayne, x, y):
+  global score
+
+  if zayne.diff == True:
+    score = score + 1
+  elif score <= 0:
+    score = 0
+  else:
+    score = score - 1
+  board()
+
+
+def hint(x, y):
+  global score, bSide, squares
+  if score >= 4:
+    score -= 4
+    ethan.clear()
+    ethan.write(f"score: {score}", move = False, align = "center", font = ("Arial", 18, "normal"))
+    gary = bSide * bSide - 1
+    gary = int(gary/3)
+    for _ in gary: # gary is an integer, why would we try to iterate through it?
+      i = random.randint(0, len(squares) - 1)
+      while squares[i].diff:
+        i = random.randint(0, len(squares) - 1)
+      del squares[i]
+      
+evan.onclick(hint) # evan is the turtle who draws the hint label and box
+board()
+turtle.done()
