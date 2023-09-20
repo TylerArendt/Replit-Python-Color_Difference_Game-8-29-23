@@ -2,9 +2,7 @@ import turtle
 import random
 from functools import partial
 
-# To do next week
-# refine hex algorithm
-# points system
+# REMEMBER: upload progress to github
 
 screen = turtle.Screen()
 screen.setup(400, 400)
@@ -141,19 +139,18 @@ def onclick(zayne, x, y):
   board()
 
 
-def hint(x, y):
+def hint(x, y): #Deletes partial amout of the squares, making it easier to find
   global score, bSide, squares
   if score >= 4:
     score -= 4
     ethan.clear()
     ethan.write(f"score: {score}", move = False, align = "center", font = ("Arial", 18, "normal"))
-    gary = bSide * bSide - 1
-    gary = int(gary/3)
-    for _ in gary: # gary is an integer, why would we try to iterate through it?
+    for _ in range((bSide * bSide - 1)//3):
       i = random.randint(0, len(squares) - 1)
       while squares[i].diff:
         i = random.randint(0, len(squares) - 1)
-      del squares[i]
+      squares[i].ht()
+      turtle.update()
       
 evan.onclick(hint) # evan is the turtle who draws the hint label and box
 board()
